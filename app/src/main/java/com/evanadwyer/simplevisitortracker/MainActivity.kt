@@ -3,7 +3,8 @@ package com.evanadwyer.simplevisitortracker
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -11,6 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.evanadwyer.simplevisitortracker.ui.theme.SimpleVisitorTrackerTheme
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,22 +27,43 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    SimpleVisitorTrackerApp()
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+fun SimpleVisitorTrackerApp() {
+    val cameraPermissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
+
+    if (cameraPermissionState.status.isGranted) {
+        Text(text = "Camera Permission is Granted")
+    } else {
+        Column() {
+            val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
+                "We gots to use the camera to scan, guy"
+            } else {
+                "Need camera permission"
+            }
+            Text(text = textToShow)
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.app_padding)))
+            Button(onClick = {
+                cameraPermissionState.launchPermissionRequest()
+            }) {
+                Text(text = "Request Permission")
+            }
+        }
+    }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     SimpleVisitorTrackerTheme {
-        Greeting("Android")
+        SimpleVisitorTrackerApp()
     }
 }
