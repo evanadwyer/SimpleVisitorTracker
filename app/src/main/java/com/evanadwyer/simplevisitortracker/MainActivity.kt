@@ -10,6 +10,9 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.evanadwyer.simplevisitortracker.ui.theme.SimpleVisitorTrackerTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -40,7 +43,7 @@ fun SimpleVisitorTrackerApp() {
     val cameraPermissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
 
     if (cameraPermissionState.status.isGranted) {
-        Text(text = "Camera Permission is Granted")
+        CameraPreview(modifier = Modifier.fillMaxSize())
     } else {
         Column() {
             val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
