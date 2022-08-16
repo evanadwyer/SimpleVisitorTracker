@@ -8,7 +8,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,9 +19,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @ExperimentalGetImage
 @Composable
-fun SimpleCameraPreview() {
+fun SimpleCameraPreview(
+    onBarcodeScanned: () -> Unit
+) {
     Column {
-        CameraXLivePreview(modifier = Modifier.weight(1f))
+        CameraXLivePreview(
+            onBarcodeScanned = onBarcodeScanned,
+            modifier = Modifier.weight(1f)
+        )
         BarCodeValue()
     }
 }
@@ -31,6 +35,7 @@ fun SimpleCameraPreview() {
 @Composable
 fun CameraXLivePreview(
     modifier: Modifier = Modifier,
+    onBarcodeScanned: () -> Unit,
     viewModel: BarCodeScannerViewModel = viewModel()
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -60,7 +65,10 @@ fun CameraXLivePreview(
                         .build()
                         .apply {
                             setAnalyzer(ContextCompat.getMainExecutor(ctx)) {
-                                viewModel.scanBarcode(it)
+                                viewModel.scanBarcode(
+                                    it,
+                                    onBarcodeScanned
+                                )
                             }
                         },
                     preview
@@ -70,12 +78,4 @@ fun CameraXLivePreview(
         },
         modifier = modifier,
     )
-}
-
-@Composable
-fun BarCodeValue(
-    viewModel: BarCodeScannerViewModel = viewModel()
-) {
-    val barcode = viewModel.barcodeValue
-    Text(text = "barcode: $barcode")
 }

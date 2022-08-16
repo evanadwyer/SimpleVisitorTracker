@@ -19,16 +19,14 @@ class BarCodeScannerViewModel : ViewModel() {
 
     @ExperimentalGetImage
     fun scanBarcode(
-        imageProxy: ImageProxy
+        imageProxy: ImageProxy,
+        onBarcodeScanned: () -> Unit
     ) {
         BarcodeScannerProcessor().processImageProxy(
             imageProxy,
-            onBarCodeValueChanged = this::updateBarCode
+            onBarCodeValueChanged = { barcodeValue = it },
+            onBarcodeScanned = onBarcodeScanned
         )
-    }
-
-    private fun updateBarCode(newValue: String) {
-        barcodeValue = newValue
     }
 
     override fun onCleared() {

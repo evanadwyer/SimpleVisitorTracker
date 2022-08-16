@@ -33,13 +33,16 @@ fun SimpleVisitorTrackerNavHost(
         modifier = modifier
     ) {
         composable(route = Home.route) {
-            TimeStampMemberButton { navController.navigateSingleTopTo(Scanner.route) }
+            TimeStampMemberButton { navController.navigateSingleTopTo(TimeStampForm.route) }
         }
         composable(route = Permissions.route) {
             PermissionScreen { navController.navigateSingleTopTo(Home.route) }
         }
+        composable(route = TimeStampForm.route) {
+            TimeStampForm { navController.navigateSingleTopTo(Scanner.route) }
+        }
         composable(route = Scanner.route) {
-            SimpleCameraPreview()
+            SimpleCameraPreview { navController.navigateUp() }
         }
     }
 }

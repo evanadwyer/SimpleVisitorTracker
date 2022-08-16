@@ -18,3 +18,8 @@ object Scanner : Destination {
     override val route: String
         get() = "scanner"
 }
+
+object TimeStampForm : Destination {
+    override val route: String
+        get() = "timestamp"
+}

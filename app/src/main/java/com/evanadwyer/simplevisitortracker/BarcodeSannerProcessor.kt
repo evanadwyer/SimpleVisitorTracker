@@ -25,7 +25,8 @@ class BarcodeScannerProcessor {
     @ExperimentalGetImage
     fun processImageProxy(
         image: ImageProxy,
-        onBarCodeValueChanged: (String) -> Unit
+        onBarCodeValueChanged: (String) -> Unit,
+        onBarcodeScanned: () -> Unit
     ) {
         if (isShutdown) {
             return
@@ -33,7 +34,8 @@ class BarcodeScannerProcessor {
 
         requestDetectInImage(
             InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
-            onBarCodeValueChanged
+            onBarCodeValueChanged,
+            onBarcodeScanned
         )
             // When the image is from CameraX analysis use case, must call image.close() on received
             // images when finished using them. Otherwise, new images may not be received or the camera
@@ -43,24 +45,28 @@ class BarcodeScannerProcessor {
 
     private fun requestDetectInImage(
         image: InputImage,
-        onBarCodeValueChanged: (String) -> Unit
+        onBarCodeValueChanged: (String) -> Unit,
+        onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return setUpListener(
             detectInImage(image),
-            onBarCodeValueChanged
+            onBarCodeValueChanged,
+            onBarcodeScanned
         )
     }
 
     private fun setUpListener(
         task: Task<List<Barcode>>,
-        onBarCodeValueChanged: (String) -> Unit
+        onBarCodeValueChanged: (String) -> Unit,
+        onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return task
             .addOnSuccessListener(
                 executor
             ) { results ->
                 this@BarcodeScannerProcessor.onSuccess(results,
-                    onBarCodeValueChanged
+                    onBarCodeValueChanged,
+                    onBarcodeScanned
                     )
             }
             .addOnFailureListener(
@@ -81,7 +87,8 @@ class BarcodeScannerProcessor {
     }
 
     private fun onSuccess(results: List<Barcode>,
-                          onBarCodeValueChanged: (String) -> Unit
+                          onBarCodeValueChanged: (String) -> Unit,
+                          onBarcodeScanned: () -> Unit
                   ) {
         if (results.isEmpty()) {
             Log.d("test", "No barcode has been detected")
@@ -93,6 +100,7 @@ class BarcodeScannerProcessor {
         }
         val barcode = results[0].displayValue ?: "test"
         onBarCodeValueChanged.invoke(barcode)
+        onBarcodeScanned.invoke()
     }
 
     private fun onFailure(e: Exception) {
