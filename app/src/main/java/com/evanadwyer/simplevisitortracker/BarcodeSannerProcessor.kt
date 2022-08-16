@@ -23,13 +23,17 @@ class BarcodeScannerProcessor {
     private val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient()
 
     @ExperimentalGetImage
-    fun processImageProxy(image: ImageProxy) {
+    fun processImageProxy(
+        image: ImageProxy,
+        onBarCodeValueChanged: (String) -> Unit
+    ) {
         if (isShutdown) {
             return
         }
 
         requestDetectInImage(
             InputImage.fromMediaImage(image.image!!, image.imageInfo.rotationDegrees),
+            onBarCodeValueChanged
         )
             // When the image is from CameraX analysis use case, must call image.close() on received
             // images when finished using them. Otherwise, new images may not be received or the camera
@@ -39,20 +43,25 @@ class BarcodeScannerProcessor {
 
     private fun requestDetectInImage(
         image: InputImage,
+        onBarCodeValueChanged: (String) -> Unit
     ): Task<List<Barcode>> {
         return setUpListener(
             detectInImage(image),
+            onBarCodeValueChanged
         )
     }
 
     private fun setUpListener(
         task: Task<List<Barcode>>,
+        onBarCodeValueChanged: (String) -> Unit
     ): Task<List<Barcode>> {
         return task
             .addOnSuccessListener(
                 executor
             ) { results ->
-                this@BarcodeScannerProcessor.onSuccess(results)
+                this@BarcodeScannerProcessor.onSuccess(results,
+                    onBarCodeValueChanged
+                    )
             }
             .addOnFailureListener(
                 executor
@@ -67,21 +76,26 @@ class BarcodeScannerProcessor {
         barcodeScanner.close()
     }
 
-    fun detectInImage(image: InputImage): Task<List<Barcode>> {
+    private fun detectInImage(image: InputImage): Task<List<Barcode>> {
         return barcodeScanner.process(image)
     }
 
-    fun onSuccess(results: List<Barcode>) {
+    private fun onSuccess(results: List<Barcode>,
+                          onBarCodeValueChanged: (String) -> Unit
+                  ) {
         if (results.isEmpty()) {
             Log.d("test", "No barcode has been detected")
+            return
         }
         for (i in results.indices) {
             val barcode = results[i]
             barcode.displayValue?.let { Log.d("barcode read", it) }
         }
+        val barcode = results[0].displayValue ?: "test"
+        onBarCodeValueChanged.invoke(barcode)
     }
 
-    fun onFailure(e: Exception) {
+    private fun onFailure(e: Exception) {
         Log.e("barcode scanner", "Barcode detection failed $e")
     }
 }
