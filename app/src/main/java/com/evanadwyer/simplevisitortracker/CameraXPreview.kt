@@ -1,5 +1,6 @@
 package com.evanadwyer.simplevisitortracker
 
+import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -20,8 +21,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @ExperimentalGetImage
 @Composable
 fun SimpleCameraPreview(
-    onBarcodeScanned: () -> Unit
+    onBarcodeScanned: () -> Unit,
+    onBack: () -> Unit
 ) {
+    BackHandler(onBack = onBack)
     Column {
         CameraXLivePreview(
             onBarcodeScanned = onBarcodeScanned,

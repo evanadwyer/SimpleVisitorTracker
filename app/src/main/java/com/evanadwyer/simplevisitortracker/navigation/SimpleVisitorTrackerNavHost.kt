@@ -26,7 +26,7 @@ fun SimpleVisitorTrackerNavHost(
     NavHost(
         navController = navController,
         startDestination = if (cameraPermissionState.status.isGranted) {
-            Home.route
+            TimeStampForm.route
         } else {
             Permissions.route
         },
@@ -36,13 +36,10 @@ fun SimpleVisitorTrackerNavHost(
             TimeStampMemberButton { navController.navigateSingleTopTo(TimeStampForm.route) }
         }
         composable(route = Permissions.route) {
-            PermissionScreen { navController.navigateSingleTopTo(Home.route) }
+            PermissionScreen { navController.navigateSingleTopTo(TimeStampForm.route) }
         }
         composable(route = TimeStampForm.route) {
-            TimeStampForm { navController.navigateSingleTopTo(Scanner.route) }
-        }
-        composable(route = Scanner.route) {
-            SimpleCameraPreview { navController.navigateUp() }
+            TimeStampForm()
         }
     }
 }
