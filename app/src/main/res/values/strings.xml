@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SimpleVisitorTracker</string>
+    <string name="timestamp_visit_button">Timestamp visit</string>
 </resources>
