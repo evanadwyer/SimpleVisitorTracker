@@ -12,8 +12,10 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -29,10 +31,11 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
     }
 
     val context = LocalContext.current
-    val memberStatus = if (viewModel.barcodeValue.isBlank()) {
-        "Please scan your tag"
-    } else {
+    val memberScanned = viewModel.barcodeValue.isNotBlank()
+    val memberStatus = if (memberScanned) {
         "Member: ${viewModel.barcodeValue}"
+    } else {
+        "Please scan your member tag"
     }
 
     Column(
@@ -40,7 +43,6 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
         verticalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .background(LightOrange)
-            .padding(start = 8.dp, end = 8.dp)
     ) {
         Image(
             painter = painterResource(id = R.drawable.gearhouse_logo),
@@ -57,7 +59,11 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
             text = memberStatus,
             fontSize = 24.sp,
             color = LightGreen,
-            modifier = Modifier.clickable {
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(if (memberScanned) Color.Transparent else LightYellow)
+                .clickable {
                 viewModel.clearBarcodeValue()
                 scanning = true
             }
@@ -70,7 +76,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
         } else {
             Text(
                 text = "Whatcha here for?",
-                fontSize = 24.sp,
+                fontSize = 32.sp,
                 color = LightGreen,
             )
             VisitTypeSelectionCTAs(
