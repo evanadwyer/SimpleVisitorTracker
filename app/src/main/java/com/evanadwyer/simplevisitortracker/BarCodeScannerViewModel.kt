@@ -1,11 +1,16 @@
 package com.evanadwyer.simplevisitortracker
 
+import android.content.Context
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.evanadwyer.simplevisitortracker.sheets.appendValues
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class BarCodeScannerViewModel : ViewModel() {
 
@@ -32,6 +37,23 @@ class BarCodeScannerViewModel : ViewModel() {
     override fun onCleared() {
         barcodeScannerProcessor.stop()
         super.onCleared()
+    }
+
+    fun appendValuesVM(
+        context: Context,
+        simpleDateFormat: String
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val values = listOf(listOf(simpleDateFormat, barcodeValue))
+            appendValues(
+                context = context,
+                viewModelScope,
+                spreadsheetId = "1p2KlwvUreu2UoK0Sw563PYzpNUsB3d0sdZnnktcNpGk",
+                range = "A1",
+                valueInputOption = "USER_ENTERED",
+                values = values
+            )
+        }
     }
 }
 
