@@ -91,7 +91,6 @@ class BarcodeScannerProcessor {
                           onBarcodeScanned: () -> Unit
                   ) {
         if (results.isEmpty()) {
-            Log.d("test", "No barcode has been detected")
             return
         }
         for (i in results.indices) {

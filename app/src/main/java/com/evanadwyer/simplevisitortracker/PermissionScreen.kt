@@ -27,7 +27,6 @@ import com.google.android.gms.tasks.Task
 import com.google.api.services.sheets.v4.SheetsScopes
 
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun PermissionScreen(
     onPermissionGranted: () -> Unit

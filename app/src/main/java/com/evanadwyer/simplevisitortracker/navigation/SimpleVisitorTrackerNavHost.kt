@@ -4,6 +4,7 @@ import android.Manifest
 import androidx.camera.core.ExperimentalGetImage
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -12,6 +13,7 @@ import com.evanadwyer.simplevisitortracker.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 
 @OptIn(ExperimentalPermissionsApi::class)
 @ExperimentalGetImage
@@ -21,25 +23,22 @@ fun SimpleVisitorTrackerNavHost(
     modifier: Modifier = Modifier
 ) {
     val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-
+    val googlePermissionState = GoogleSignIn.getLastSignedInAccount(LocalContext.current) != null
 
     NavHost(
         navController = navController,
-        startDestination = if (cameraPermissionState.status.isGranted) {
-            TimeStampForm.route
+        startDestination = if (cameraPermissionState.status.isGranted && googlePermissionState) {
+            Home.route
         } else {
             Permissions.route
         },
         modifier = modifier
     ) {
         composable(route = Home.route) {
-            TimeStampMemberButton { navController.navigateSingleTopTo(TimeStampForm.route) }
+            HomeScreen()
         }
         composable(route = Permissions.route) {
-            PermissionScreen { navController.navigateSingleTopTo(TimeStampForm.route) }
-        }
-        composable(route = TimeStampForm.route) {
-            TimeStampForm()
+            PermissionScreen { navController.navigateSingleTopTo(Home.route) }
         }
     }
 }

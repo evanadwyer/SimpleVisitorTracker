@@ -9,19 +9,18 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes
+import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-fun appendValues(
+suspend fun appendValues(
     context: Context,
-    scope: CoroutineScope,
     spreadsheetId: String,
     range: String,
     valueInputOption: String,
     values: List<List<Any>>
-) {
+): AppendValuesResponse? {
     val scopes = listOf(SheetsScopes.SPREADSHEETS)
     val credential = GoogleAccountCredential.usingOAuth2(context, scopes)
     credential.selectedAccount = GoogleSignIn.getLastSignedInAccount(context)?.account
@@ -33,15 +32,17 @@ fun appendValues(
         .setApplicationName("SimpleVisitorTracker")
         .build()
 
+    var response: AppendValuesResponse? = null
     try {
         val body = ValueRange().setValues(values)
 
-        scope.launch(Dispatchers.IO) {
-            service.spreadsheets().values().append(spreadsheetId, range, body)
+        withContext(Dispatchers.IO) {
+            response = service.spreadsheets().values().append(spreadsheetId, range, body)
                 .setValueInputOption(valueInputOption)
                 .execute()
         }
     } catch (e: GoogleJsonResponseException) {
         Log.e("Sheets Service", e.message, e)
     }
+    return response
 }

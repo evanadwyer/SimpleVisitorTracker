@@ -8,7 +8,7 @@ import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -25,13 +25,10 @@ fun SimpleCameraPreview(
     onBack: () -> Unit
 ) {
     BackHandler(onBack = onBack)
-    Column {
-        CameraXLivePreview(
-            onBarcodeScanned = onBarcodeScanned,
-            modifier = Modifier.weight(1f)
-        )
-        BarCodeValue()
-    }
+    CameraXLivePreview(
+        onBarcodeScanned = onBarcodeScanned,
+        modifier = Modifier.fillMaxSize()
+    )
 }
 
 @ExperimentalGetImage
