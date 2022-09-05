@@ -104,7 +104,15 @@ fun VisitTypeSelectionCTAs(
         modifier = Modifier.background(LightOrange)
     ) {
         CTAButton(
-            type = VisitType.GEAR,
+            type = VisitType.GEAR_PICKUP,
+            enabled = enabled,
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+        CTAButton(
+            type = VisitType.GEAR_DROP_OFF,
             enabled = enabled,
             onClick = onClick,
             modifier = Modifier
@@ -135,6 +143,6 @@ fun CTAButton(
         colors = ButtonDefaults.buttonColors(backgroundColor = LightYellow),
         modifier = modifier.padding(8.dp)
     ) {
-        Text(text = type.name, color = LightGreen, fontSize = 40.sp)
+        Text(text = type.value, color = LightGreen, fontSize = 40.sp)
     }
 }
