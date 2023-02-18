@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -88,14 +89,15 @@ fun GuestSignIn(
                 disabledBorderColor = LightYellow,
                 errorBorderColor = Color.Red,
                 focusedLabelColor = LightGreen,
-                unfocusedLabelColor = LightGreen,
+                unfocusedLabelColor = LightYellow,
                 disabledLabelColor = LightGreen,
                 errorLabelColor = Color.Red,
                 textColor = LightGreen,
-                errorCursorColor = LightGreen
+                errorCursorColor = LightGreen,
             ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words,
                 autoCorrect = false,
                 imeAction = ImeAction.Next
             ),
@@ -142,7 +144,7 @@ fun GuestSignIn(
                 disabledBorderColor = LightYellow,
                 errorBorderColor = Color.Red,
                 focusedLabelColor = LightGreen,
-                unfocusedLabelColor = LightGreen,
+                unfocusedLabelColor = LightYellow,
                 disabledLabelColor = LightGreen,
                 errorLabelColor = Color.Red,
                 textColor = LightGreen,
