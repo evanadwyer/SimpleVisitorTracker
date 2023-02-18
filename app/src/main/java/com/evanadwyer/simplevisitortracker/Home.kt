@@ -29,11 +29,18 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
     var scanning by remember {
         mutableStateOf(true)
     }
+    var guestSignIn by remember {
+        mutableStateOf(false)
+    }
 
     val context = LocalContext.current
     val memberScanned = viewModel.barcodeValue.second.isNotBlank()
     val memberStatus = if (memberScanned) {
-        "Welcome, ${viewModel.barcodeValue.second}!"
+        "Welcome, ${viewModel.barcodeValue.second}!\n" +
+                "(Not you? Tap here)"
+    } else if (guestSignIn) {
+        "Please enter your email\n" +
+                "(Already a member? Tap here)"
     } else {
         "Please scan your member tag"
     }
@@ -65,16 +72,41 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
                 .height(86.dp)
                 .background(if (memberScanned) Color.Transparent else LightYellow)
                 .clickable {
-                viewModel.clearBarcodeValue()
-                scanning = true
-            }
+                    viewModel.clearBarcodeValue()
+                    scanning = true
+                    guestSignIn = false
+                }
         )
         if (scanning) {
-            SimpleCameraPreview(
-                onBack = { scanning = false },
-                onBarcodeScanned = { scanning = false },
-                modifier = Modifier.weight(1f)
-            )
+            if (guestSignIn) {
+                GuestSignIn(
+                    onBack = { guestSignIn = false },
+                    onGuestEmailEntered = {
+                        scanning = false
+                        guestSignIn = false
+                    }
+                )
+            } else {
+                SimpleCameraPreview(
+                    onBack = { scanning = false },
+                    onBarcodeScanned = { scanning = false },
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "Not a member? Tap here",
+                    fontSize = 24.sp,
+                    color = LightGreen,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+//                        .height(86.dp)
+                        .background(LightYellow)
+                        .clickable {
+                            viewModel.clearBarcodeValue()
+                            guestSignIn = true
+                        }
+                )
+            }
         } else {
             Text(
                 text = "Whatcha here for?",

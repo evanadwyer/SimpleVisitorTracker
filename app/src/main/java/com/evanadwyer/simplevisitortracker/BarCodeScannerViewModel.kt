@@ -26,6 +26,10 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
     var barcodeValue by mutableStateOf("" to "")
         private set
 
+    fun setBarcodeValueForGuestSignIn(newPair: Pair<String, String>) {
+        barcodeValue = newPair
+    }
+
     fun clearBarcodeValue() {
         barcodeValue = "" to ""
     }
