@@ -10,7 +10,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
-class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
+class BarcodeScannerProcessor(private val contacts: Map<String, BarcodeValue>) {
 
     private val executor = ScopedExecutor(TaskExecutors.MAIN_THREAD)
     private var isShutdown = false
@@ -25,7 +25,7 @@ class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
     @ExperimentalGetImage
     fun processImageProxy(
         image: ImageProxy,
-        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
+        onBarCodeValueChanged: (BarcodeValue) -> Unit,
         onBarcodeScanned: () -> Unit
     ) {
         if (isShutdown) {
@@ -45,7 +45,7 @@ class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
 
     private fun requestDetectInImage(
         image: InputImage,
-        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
+        onBarCodeValueChanged: (BarcodeValue) -> Unit,
         onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return setUpListener(
@@ -57,17 +57,18 @@ class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
 
     private fun setUpListener(
         task: Task<List<Barcode>>,
-        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
+        onBarCodeValueChanged: (BarcodeValue) -> Unit,
         onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return task
             .addOnSuccessListener(
                 executor
             ) { results ->
-                this@BarcodeScannerProcessor.onSuccess(results,
+                this@BarcodeScannerProcessor.onSuccess(
+                    results,
                     onBarCodeValueChanged,
                     onBarcodeScanned
-                    )
+                )
             }
             .addOnFailureListener(
                 executor
@@ -86,10 +87,11 @@ class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
         return barcodeScanner.process(image)
     }
 
-    private fun onSuccess(results: List<Barcode>,
-                          onBarCodeValueChanged: (Pair<String, String>) -> Unit,
-                          onBarcodeScanned: () -> Unit
-                  ) {
+    private fun onSuccess(
+        results: List<Barcode>,
+        onBarCodeValueChanged: (BarcodeValue) -> Unit,
+        onBarcodeScanned: () -> Unit
+    ) {
         if (results.isEmpty()) {
             return
         }
@@ -98,8 +100,12 @@ class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
             barcode.displayValue?.let { Log.d("barcode read", it) }
         }
         val barcode = results[0].displayValue ?: "test"
-        if (barcode in iDToName) {
-            iDToName[barcode]?.let { onBarCodeValueChanged.invoke(barcode to it) }
+        if (barcode in contacts) {
+            contacts[barcode]?.let {
+                onBarCodeValueChanged.invoke(
+                    it
+                )
+            }
             onBarcodeScanned.invoke()
         }
     }

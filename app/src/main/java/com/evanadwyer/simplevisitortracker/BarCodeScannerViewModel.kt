@@ -21,23 +21,22 @@ import java.util.*
 
 class BarCodeScannerViewModel(application: Application) : AndroidViewModel(application) {
 
-    //    first is ID
-//    second is First Name
-    var barcodeValue by mutableStateOf("" to "")
+    var barcodeValue by mutableStateOf(BarcodeValue())
         private set
 
-    fun setBarcodeValueForGuestSignIn(newPair: Pair<String, String>) {
-        barcodeValue = newPair
+    fun setBarcodeValueForGuestSignIn(guest: BarcodeValue) {
+        barcodeValue = guest
     }
 
     fun clearBarcodeValue() {
-        barcodeValue = "" to ""
+        barcodeValue = BarcodeValue()
     }
 
     private var sounder: Sounder = Sounder(application.assets)
     private val sheetsService = SheetsService(application)
 
-    private val iDToName = mutableMapOf<String, String>()
+//    ID to barcode id, name, and email
+    private val contacts = mutableMapOf<String, BarcodeValue>()
 
     init {
         populateIDsToNames(application)
@@ -46,7 +45,7 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
     // TODO: configure scanner type to improve latency
     //  https://developers.google.com/ml-kit/vision/barcode-scanning/android#1.-configure-the-barcode-scanner
 
-    private var barcodeScannerProcessor = BarcodeScannerProcessor(iDToName)
+    private var barcodeScannerProcessor = BarcodeScannerProcessor(contacts)
 
     @ExperimentalGetImage
     fun scanBarcode(
@@ -75,7 +74,15 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
         ).format(System.currentTimeMillis())
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val values = listOf(listOf(simpleDateFormat, barcodeValue.first, visitType.name))
+            val values = listOf(
+                listOf(
+                    simpleDateFormat,
+                    barcodeValue.name,
+                    barcodeValue.id,
+                    barcodeValue.email,
+                    visitType.name
+                )
+            )
             val response = sheetsService.appendValues(
 //                gearhouse
 //                spreadsheetId = "1J3e4GLJSXUAFHo7wIyWtxUlY8sVYklmoSCddETne078",
@@ -90,7 +97,7 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Thank you for checking in!", Toast.LENGTH_LONG).show()
                 }
-                barcodeValue = "" to ""
+                barcodeValue = BarcodeValue()
             }
         }
     }
@@ -120,11 +127,24 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
                     }
                     for (row in values) {
                         Log.d("Read Names", "${row[0]}, ${row[1]}")
-                        iDToName.putIfAbsent(row[0].toString(), row[1].toString())
+//                        requires ID, first name, and email to be present
+                        contacts.putIfAbsent(
+                            row[0].toString(), BarcodeValue(
+                                id = row[0].toString(),
+                                name = row[1].toString(),
+                                email = row[3].toString()
+                            )
+                        )
                     }
                 }
             }
         }
     }
 }
+
+data class BarcodeValue(
+    val id: String = "",
+    val name: String = "",
+    val email: String = ""
+)
 

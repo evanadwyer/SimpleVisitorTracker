@@ -5,8 +5,10 @@ import android.util.Patterns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -23,7 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -41,12 +45,19 @@ fun GuestSignIn(
     onGuestEmailEntered: () -> Unit,
     viewModel: BarCodeScannerViewModel = viewModel(),
 ) {
+    var guestName by remember {
+        mutableStateOf("")
+    }
+    var isGuestNameValid by remember {
+        mutableStateOf(true)
+    }
     var guestEmail by remember {
         mutableStateOf("")
     }
     var isValidEmail by remember {
         mutableStateOf(true)
     }
+    val localFocusManager = LocalFocusManager.current
     BackHandler(onBack = onBack)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -55,6 +66,61 @@ fun GuestSignIn(
             .padding(top = 18.dp)
             .background(LightOrange)
     ) {
+        // first name field
+        OutlinedTextField(
+            value = guestName,
+            onValueChange = {
+                isGuestNameValid = true
+                guestName = it
+            },
+            singleLine = true,
+            label = { Text(text = "first name") },
+//            placeholder = { Text(text = "jane_smith96@gmail.com") },
+            isError = !isGuestNameValid,
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Email, contentDescription = "email icon")
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                backgroundColor = LightYellow.copy(alpha = 0.25f),
+                cursorColor = LightGreen,
+                focusedBorderColor = LightYellow,
+                unfocusedBorderColor = LightYellow,
+                disabledBorderColor = LightYellow,
+                errorBorderColor = Color.Red,
+                focusedLabelColor = LightGreen,
+                unfocusedLabelColor = LightGreen,
+                disabledLabelColor = LightGreen,
+                errorLabelColor = Color.Red,
+                textColor = LightGreen,
+                errorCursorColor = LightGreen
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                autoCorrect = false,
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    isGuestNameValid = guestName.isNotBlank()
+                    if (isGuestNameValid) {
+                        localFocusManager.moveFocus(FocusDirection.Down)
+                    }
+                }
+            )
+        )
+        if (!isGuestNameValid) {
+            Text(
+                text = "Please enter your name",
+                fontSize = 18.sp,
+                color = Color.Red,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        } else {
+            Spacer(modifier = Modifier.height(18.dp))
+        }
+        // email field
         OutlinedTextField(
             value = guestEmail,
             onValueChange = {
@@ -90,8 +156,15 @@ fun GuestSignIn(
             keyboardActions = KeyboardActions(
                 onDone = {
                     isValidEmail = guestEmail.isValidEmail()
-                    if (isValidEmail) {
-                        viewModel.setBarcodeValueForGuestSignIn(guestEmail.trim() to guestEmail.trim())
+                    isGuestNameValid = guestName.isNotBlank()
+                    if (isGuestNameValid && isValidEmail) {
+                        viewModel.setBarcodeValueForGuestSignIn(
+                            BarcodeValue(
+                                id = "0",
+                                name = guestName,
+                                email = guestEmail
+                            )
+                        )
                         onGuestEmailEntered.invoke()
                     }
                 }
