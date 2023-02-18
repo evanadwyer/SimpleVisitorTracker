@@ -1,21 +1,25 @@
 package com.evanadwyer.simplevisitortracker
 
+import android.app.Application
 import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.evanadwyer.simplevisitortracker.sheets.SheetsService
 import com.evanadwyer.simplevisitortracker.sound.Sounder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class BarCodeScannerViewModel : ViewModel() {
+class BarCodeScannerViewModel(application: Application) : AndroidViewModel(application) {
 
     //    first is ID
 //    second is First Name
@@ -67,10 +71,11 @@ class BarCodeScannerViewModel : ViewModel() {
         ).format(System.currentTimeMillis())
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val values = listOf(listOf(simpleDateFormat, barcodeValue, visitType.name))
-            val response = appendValues(
-                context = context,
-                // TODO: Update this spreadhsheetID with sheet from Gearhouse account
+            val values = listOf(listOf(simpleDateFormat, barcodeValue.first, visitType.name))
+            val response = sheetsService.appendValues(
+//                gearhouse
+//                spreadsheetId = "1J3e4GLJSXUAFHo7wIyWtxUlY8sVYklmoSCddETne078",
+//                mine
                 spreadsheetId = "1p2KlwvUreu2UoK0Sw563PYzpNUsB3d0sdZnnktcNpGk",
                 range = "A1",
                 valueInputOption = "USER_ENTERED",

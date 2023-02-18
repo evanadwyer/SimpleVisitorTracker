@@ -33,9 +33,15 @@ class SheetsService(
             .build()
     }
 
-    var response: AppendValuesResponse? = null
-    try {
-        val body = ValueRange().setValues(values)
+    suspend fun appendValues(
+        spreadsheetId: String,
+        range: String,
+        valueInputOption: String,
+        values: List<List<Any>>
+    ): AppendValuesResponse? {
+        var response: AppendValuesResponse? = null
+        try {
+            val body = ValueRange().setValues(values)
 
             withContext(Dispatchers.IO) {
                 response = service.spreadsheets().values().append(spreadsheetId, range, body)
