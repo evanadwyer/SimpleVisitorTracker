@@ -60,7 +60,7 @@ class BarCodeScannerViewModel : ViewModel() {
         context: Context,
         visitType: VisitType,
         simpleDateFormat: String = SimpleDateFormat(
-            "dd/MM/yyy HH:mm:ss",
+            "MM/dd/yyy HH:mm:ss",
             Locale.US
         ).format(System.currentTimeMillis())
     ) {
