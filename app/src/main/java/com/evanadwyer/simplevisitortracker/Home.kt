@@ -39,7 +39,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
         "Welcome, ${viewModel.barcodeValue.name}!\n" +
                 "(Not you? Tap here)"
     } else if (guestSignIn) {
-        "Please enter your name and email\n" +
+        "Please enter your contact info\n" +
                 "(Already a member? Tap here)"
     } else {
         "Please scan your member tag"
