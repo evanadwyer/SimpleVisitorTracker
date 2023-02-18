@@ -127,6 +127,14 @@ fun VisitTypeSelectionCTAs(
                 .fillMaxWidth()
                 .weight(1f)
         )
+        CTAButton(
+            type = VisitType.HANGOUT,
+            enabled = enabled,
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
     }
 }
 
