@@ -62,6 +62,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
+                .height(86.dp)
                 .background(if (memberScanned) Color.Transparent else LightYellow)
                 .clickable {
                 viewModel.clearBarcodeValue()
@@ -71,7 +72,8 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
         if (scanning) {
             SimpleCameraPreview(
                 onBack = { scanning = false },
-                onBarcodeScanned = { scanning = false }
+                onBarcodeScanned = { scanning = false },
+                modifier = Modifier.weight(1f)
             )
         } else {
             Text(
