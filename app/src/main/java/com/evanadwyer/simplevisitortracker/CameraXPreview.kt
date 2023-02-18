@@ -22,12 +22,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @Composable
 fun SimpleCameraPreview(
     onBarcodeScanned: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     BackHandler(onBack = onBack)
     CameraXLivePreview(
         onBarcodeScanned = onBarcodeScanned,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     )
 }
 
@@ -53,14 +54,15 @@ fun CameraXLivePreview(
                 }
 
                 val cameraSelector = CameraSelector.Builder()
-                    .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                    .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                     .build()
 
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
-                    ImageAnalysis.Builder()
+                    ImageAnalysis
+                        .Builder()
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
                         .build()
                         .apply {
