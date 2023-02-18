@@ -79,17 +79,19 @@ fun CameraPermission(onPermissionGranted: () -> Unit) {
 @Composable
 fun GoogleSignInPermission(onPermissionGranted: () -> Unit) {
     val current = LocalContext.current
-
+    val gso = GoogleSignInOptions
+        .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        .requestScopes(Scope(SheetsScopes.SPREADSHEETS))
+        .requestEmail()
+        .requestServerAuthCode(current.getString(R.string.server_client_id))
+        .build()
+    val googleSignInClient = GoogleSignIn.getClient(current, gso)
+    googleSignInClient.signOut()
     val account = GoogleSignIn.getLastSignedInAccount(current)
     if (account != null) {
         onPermissionGranted.invoke()
     } else {
-        val gso = GoogleSignInOptions
-            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(SheetsScopes.SPREADSHEETS))
-            .requestServerAuthCode(current.getString(R.string.server_client_id))
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(current, gso)
+
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartActivityForResult(),
             onResult = {
