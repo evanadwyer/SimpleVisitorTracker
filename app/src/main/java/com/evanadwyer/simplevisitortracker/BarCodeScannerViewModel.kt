@@ -16,17 +16,28 @@ import java.util.*
 
 class BarCodeScannerViewModel : ViewModel() {
 
-    var barcodeValue by mutableStateOf("")
+    //    first is ID
+//    second is First Name
+    var barcodeValue by mutableStateOf("" to "")
         private set
 
     fun clearBarcodeValue() {
-        barcodeValue = ""
+        barcodeValue = "" to ""
+    }
+
+    private var sounder: Sounder = Sounder(application.assets)
+    private val sheetsService = SheetsService(application)
+
+    private val iDToName = mutableMapOf<String, String>()
+
+    init {
+        populateIDsToNames(application)
     }
 
     // TODO: configure scanner type to improve latency
     //  https://developers.google.com/ml-kit/vision/barcode-scanning/android#1.-configure-the-barcode-scanner
 
-    private var barcodeScannerProcessor: BarcodeScannerProcessor = BarcodeScannerProcessor()
+    private var barcodeScannerProcessor = BarcodeScannerProcessor(iDToName)
 
     @ExperimentalGetImage
     fun scanBarcode(
@@ -64,7 +75,43 @@ class BarCodeScannerViewModel : ViewModel() {
                 values = values
             )
             if (response != null) {
-                barcodeValue = ""
+                sounder.play()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "Thank you for checking in!", Toast.LENGTH_LONG).show()
+                }
+                barcodeValue = "" to ""
+            }
+        }
+    }
+
+    private fun populateIDsToNames(
+        context: Context,
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = sheetsService.readIDsToNames(
+//                gearhouse
+//                spreadsheetId = "",
+//                mine
+                spreadsheetId = "1HQ92hTMkvekekHd8akjH_d4SJH2jKM7BdNkiSNJS61M",
+//                google quickstart
+//                spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+
+//                mine
+                range = "Sheet1!A2:D"
+//                google quickstart
+//                range = "Class Data!A2:E"
+            )
+            if (response != null) {
+                val values = response.getValues()
+                if (values != null && values.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Names loaded", Toast.LENGTH_LONG).show()
+                    }
+                    for (row in values) {
+                        Log.d("Read Names", "${row[0]}, ${row[1]}")
+                        iDToName.putIfAbsent(row[0].toString(), row[1].toString())
+                    }
+                }
             }
         }
     }

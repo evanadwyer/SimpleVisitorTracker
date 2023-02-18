@@ -36,13 +36,32 @@ suspend fun appendValues(
     try {
         val body = ValueRange().setValues(values)
 
-        withContext(Dispatchers.IO) {
-            response = service.spreadsheets().values().append(spreadsheetId, range, body)
-                .setValueInputOption(valueInputOption)
-                .execute()
+            withContext(Dispatchers.IO) {
+                response = service.spreadsheets().values().append(spreadsheetId, range, body)
+                    .setValueInputOption(valueInputOption)
+                    .execute()
+            }
+        } catch (e: GoogleJsonResponseException) {
+            Log.e("Sheets Service", "unable to submit checkin", e)
         }
-    } catch (e: GoogleJsonResponseException) {
-        Log.e("Sheets Service", e.message, e)
+        return response
     }
-    return response
+
+    suspend fun readIDsToNames(
+        spreadsheetId: String,
+        range: String,
+    ): ValueRange? {
+        var response: ValueRange? = null
+        try {
+            withContext(Dispatchers.IO) {
+                response = service.spreadsheets().values()
+                    .get(spreadsheetId, range)
+                    .execute()
+            }
+        } catch (e: GoogleJsonResponseException) {
+            Log.e("Sheets Service", "unable to load IDs to Names", e)
+        }
+        return response
+    }
+
 }

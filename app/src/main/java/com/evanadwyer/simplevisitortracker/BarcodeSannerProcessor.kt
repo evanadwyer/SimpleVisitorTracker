@@ -10,7 +10,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 
-class BarcodeScannerProcessor {
+class BarcodeScannerProcessor(private val iDToName: Map<String, String>) {
 
     private val executor = ScopedExecutor(TaskExecutors.MAIN_THREAD)
     private var isShutdown = false
@@ -25,7 +25,7 @@ class BarcodeScannerProcessor {
     @ExperimentalGetImage
     fun processImageProxy(
         image: ImageProxy,
-        onBarCodeValueChanged: (String) -> Unit,
+        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
         onBarcodeScanned: () -> Unit
     ) {
         if (isShutdown) {
@@ -45,7 +45,7 @@ class BarcodeScannerProcessor {
 
     private fun requestDetectInImage(
         image: InputImage,
-        onBarCodeValueChanged: (String) -> Unit,
+        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
         onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return setUpListener(
@@ -57,7 +57,7 @@ class BarcodeScannerProcessor {
 
     private fun setUpListener(
         task: Task<List<Barcode>>,
-        onBarCodeValueChanged: (String) -> Unit,
+        onBarCodeValueChanged: (Pair<String, String>) -> Unit,
         onBarcodeScanned: () -> Unit
     ): Task<List<Barcode>> {
         return task
@@ -87,7 +87,7 @@ class BarcodeScannerProcessor {
     }
 
     private fun onSuccess(results: List<Barcode>,
-                          onBarCodeValueChanged: (String) -> Unit,
+                          onBarCodeValueChanged: (Pair<String, String>) -> Unit,
                           onBarcodeScanned: () -> Unit
                   ) {
         if (results.isEmpty()) {
@@ -98,8 +98,10 @@ class BarcodeScannerProcessor {
             barcode.displayValue?.let { Log.d("barcode read", it) }
         }
         val barcode = results[0].displayValue ?: "test"
-        onBarCodeValueChanged.invoke(barcode)
-        onBarcodeScanned.invoke()
+        if (barcode in iDToName) {
+            iDToName[barcode]?.let { onBarCodeValueChanged.invoke(barcode to it) }
+            onBarcodeScanned.invoke()
+        }
     }
 
     private fun onFailure(e: Exception) {
