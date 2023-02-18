@@ -8,7 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.evanadwyer.simplevisitortracker.sheets.appendValues
+import com.evanadwyer.simplevisitortracker.sheets.SheetsService
+import com.evanadwyer.simplevisitortracker.sound.Sounder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -53,6 +54,7 @@ class BarCodeScannerViewModel : ViewModel() {
 
     override fun onCleared() {
         barcodeScannerProcessor.stop()
+        sounder.release()
         super.onCleared()
     }
 
