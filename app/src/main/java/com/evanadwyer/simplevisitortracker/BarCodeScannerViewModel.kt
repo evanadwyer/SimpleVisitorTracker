@@ -81,7 +81,8 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
                     barcodeValue.lastName,
                     barcodeValue.id,
                     barcodeValue.email,
-                    visitType.name
+                    visitType.name,
+                    "Cascade"
                 )
             )
             val response = sheetsService.appendValues(
