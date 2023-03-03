@@ -34,9 +34,9 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
     }
 
     val context = LocalContext.current
-    val memberScanned = viewModel.barcodeValue.name.isNotBlank()
+    val memberScanned = viewModel.barcodeValue.firstName.isNotBlank()
     val memberStatus = if (memberScanned) {
-        "Welcome, ${viewModel.barcodeValue.name}!\n" +
+        "Welcome, ${viewModel.barcodeValue.firstName}!\n" +
                 "(Not you? Tap here)"
     } else if (guestSignIn) {
         "Please enter your contact info\n" +
@@ -114,7 +114,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
                 color = LightGreen,
             )
             VisitTypeSelectionCTAs(
-                enabled = viewModel.barcodeValue.name.isNotBlank(),
+                enabled = viewModel.barcodeValue.firstName.isNotBlank(),
                 onBack = { scanning = true },
                 onClick = {
                     viewModel.appendValuesVM(context, it)

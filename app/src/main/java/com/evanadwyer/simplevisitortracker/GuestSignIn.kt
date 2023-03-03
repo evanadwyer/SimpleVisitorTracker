@@ -163,7 +163,7 @@ fun GuestSignIn(
                         viewModel.setBarcodeValueForGuestSignIn(
                             BarcodeValue(
                                 id = "0",
-                                name = guestName,
+                                firstName = guestName,
                                 email = guestEmail
                             )
                         )

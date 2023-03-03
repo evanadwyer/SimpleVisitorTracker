@@ -77,7 +77,8 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
             val values = listOf(
                 listOf(
                     simpleDateFormat,
-                    barcodeValue.name,
+                    barcodeValue.firstName,
+                    barcodeValue.lastName,
                     barcodeValue.id,
                     barcodeValue.email,
                     visitType.name
@@ -126,13 +127,14 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
                         Toast.makeText(context, "Names loaded", Toast.LENGTH_LONG).show()
                     }
                     for (row in values) {
-                        Log.d("Read Names", "${row[0]}, ${row[1]}")
+                        Log.d("Read Names", "${row[1]}, ${row[3]}")
 //                        requires ID, first name, and email to be present
                         contacts.putIfAbsent(
-                            row[0].toString(), BarcodeValue(
-                                id = row[0].toString(),
-                                name = row[1].toString(),
-                                email = row[3].toString()
+                            row[3].toString(), BarcodeValue(
+                                id = row[3].toString(),
+                                firstName = row[1].toString(),
+                                lastName = row[2].toString(),
+                                email = row[0].toString()
                             )
                         )
                     }
@@ -144,7 +146,8 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
 
 data class BarcodeValue(
     val id: String = "",
-    val name: String = "",
+    val firstName: String = "",
+    val lastName: String = "",
     val email: String = ""
 )
 
