@@ -5,15 +5,21 @@ import android.util.Patterns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.RadioButton
+import androidx.compose.material.RadioButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
@@ -26,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
@@ -58,6 +65,12 @@ fun GuestSignIn(
     var isValidEmail by remember {
         mutableStateOf(true)
     }
+    var selectedOption by remember {
+        mutableStateOf("")
+    }
+    var isValidOption by remember {
+        mutableStateOf(true)
+    }
     val localFocusManager = LocalFocusManager.current
     BackHandler(onBack = onBack)
     Column(
@@ -66,7 +79,28 @@ fun GuestSignIn(
             .fillMaxSize()
             .padding(top = 18.dp)
             .background(LightOrange)
+            .verticalScroll(rememberScrollState())
     ) {
+        DiscoverySurvey(
+            localFocusManager
+        ) {
+            selectedOption = if (it.startsWith("Other:")) {
+                it.drop(6)
+            } else {
+                it
+            }
+            isValidOption = it.isNotBlank()
+        }
+        if (!isValidOption) {
+            Text(
+                text = "Please select an option",
+                fontSize = 18.sp,
+                color = Color.Red,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
         // first name field
         OutlinedTextField(
             value = guestName,
@@ -159,12 +193,14 @@ fun GuestSignIn(
                 onDone = {
                     isValidEmail = guestEmail.isValidEmail()
                     isGuestNameValid = guestName.isNotBlank()
-                    if (isGuestNameValid && isValidEmail) {
+                    isValidOption = selectedOption.isNotBlank()
+                    if (isGuestNameValid && isValidEmail && isValidOption) {
                         viewModel.setBarcodeValueForGuestSignIn(
                             BarcodeValue(
                                 id = "0",
                                 firstName = guestName,
-                                email = guestEmail
+                                email = guestEmail,
+                                discoveryOption = selectedOption
                             )
                         )
                         onGuestEmailEntered.invoke()
@@ -181,6 +217,120 @@ fun GuestSignIn(
                 modifier = Modifier
                     .fillMaxWidth()
             )
+        }
+    }
+}
+
+@Composable
+fun DiscoverySurvey(
+    localFocusManager: FocusManager,
+    onOptionStateSelected: (String) -> Unit
+) {
+
+    var otherOption by remember {
+        mutableStateOf("")
+    }
+    var isOtherOptionValid by remember {
+        mutableStateOf(true)
+    }
+
+    Text(
+        text = "How did you hear about us?",
+        fontSize = 24.sp,
+        color = LightGreen,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth()
+    )
+
+    val radioOptions = listOf(
+        "Instagram",
+        "Facebook",
+        "Maps",
+        "Meetup",
+        "Friend (non-member)",
+        "Friend (member)",
+        "Sidewalk Sign",
+        "Flyer/Poster",
+        "Newsletter",
+        "Other:"
+    )
+    val (selectedOption, onOptionSelected) = remember {
+        mutableStateOf("")
+    }
+    Column {
+        radioOptions.forEach { text ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = (text == selectedOption),
+                        onClick = {
+                            onOptionSelected(text)
+                            onOptionStateSelected.invoke(text)
+                        }
+                    ),
+//                        .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RadioButton(
+//                        modifier = Modifier.padding(8.dp),
+                    selected = (selectedOption.contains(text)),
+                    onClick = {
+                        onOptionSelected(text)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = LightGreen,
+                        unselectedColor = LightYellow
+                    )
+                )
+                Text(
+//                        modifier = Modifier.padding(start = 16.dp),
+                    text = text,
+                    color = if (text == selectedOption) LightGreen else LightYellow
+                )
+                if (text == "Other:" && selectedOption.contains("Other:")) {
+                    OutlinedTextField(
+                        value = otherOption,
+                        onValueChange = {
+                            isOtherOptionValid = true
+                            otherOption = it
+                        },
+                        singleLine = true,
+                        label = { Text(text = "please specify") },
+//            placeholder = { Text(text = "jane_smith96@gmail.com") },
+                        isError = !isOtherOptionValid,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            backgroundColor = LightYellow.copy(alpha = 0.25f),
+                            cursorColor = LightGreen,
+                            focusedBorderColor = LightYellow,
+                            unfocusedBorderColor = LightYellow,
+                            disabledBorderColor = LightYellow,
+                            errorBorderColor = Color.Red,
+                            focusedLabelColor = LightGreen,
+                            unfocusedLabelColor = LightYellow,
+                            disabledLabelColor = LightGreen,
+                            errorLabelColor = Color.Red,
+                            textColor = LightGreen,
+                            errorCursorColor = LightGreen,
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            capitalization = KeyboardCapitalization.Words,
+                            autoCorrect = false,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                isOtherOptionValid = otherOption.isNotBlank()
+                                if (selectedOption.contains("Other:") && isOtherOptionValid) {
+                                    onOptionStateSelected.invoke("Other:$otherOption")
+                                    localFocusManager.moveFocus(FocusDirection.Down)
+                                }
+                            }
+                        )
+                    )
+                }
+            }
         }
     }
 }
