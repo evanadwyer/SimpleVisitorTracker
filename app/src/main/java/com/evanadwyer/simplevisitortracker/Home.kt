@@ -55,6 +55,9 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
             painter = painterResource(id = R.drawable.gearhouse_logo),
             contentDescription = "Gearhouse logo",
             modifier = Modifier.size(128.dp)
+                .clickable {
+                    viewModel.populateIDsToNames(context = context)
+                }
         )
 //        Text(
 //            text = "Welcome to Gearhouse!",
@@ -69,7 +72,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(86.dp)
+                .height(140.dp)
                 .background(if (memberScanned) Color.Transparent else LightYellow)
                 .clickable {
                     viewModel.clearBarcodeValue()
@@ -89,7 +92,9 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
             } else {
                 SimpleCameraPreview(
                     onBack = { scanning = false },
-                    onBarcodeScanned = { scanning = false },
+                    onBarcodeScanned = {
+                        scanning = false
+                                       },
                     modifier = Modifier.weight(1f)
                 )
                 Text(
@@ -108,6 +113,7 @@ fun HomeScreen(viewModel: BarCodeScannerViewModel = viewModel()) {
                 )
             }
         } else {
+            viewModel.playScanSound()
             Text(
                 text = "Whatcha here for?",
                 fontSize = 32.sp,

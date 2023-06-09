@@ -32,6 +32,8 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
         barcodeValue = BarcodeValue()
     }
 
+    fun playScanSound() = sounder.playScan()
+
     private var sounder: Sounder = Sounder(application.assets)
     private val sheetsService = SheetsService(application)
 
@@ -88,15 +90,15 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
             )
             val response = sheetsService.appendValues(
 //                gearhouse
-//                spreadsheetId = "1J3e4GLJSXUAFHo7wIyWtxUlY8sVYklmoSCddETne078",
+                spreadsheetId = "1J3e4GLJSXUAFHo7wIyWtxUlY8sVYklmoSCddETne078",
 //                mine
-                spreadsheetId = "1p2KlwvUreu2UoK0Sw563PYzpNUsB3d0sdZnnktcNpGk",
+//                spreadsheetId = "1p2KlwvUreu2UoK0Sw563PYzpNUsB3d0sdZnnktcNpGk",
                 range = "A1",
                 valueInputOption = "USER_ENTERED",
                 values = values
             )
             if (response != null) {
-                sounder.play()
+                sounder.playCheckInSubmission()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Thank you for checking in!", Toast.LENGTH_LONG).show()
                 }
@@ -105,20 +107,22 @@ class BarCodeScannerViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    private fun populateIDsToNames(
+    fun populateIDsToNames(
         context: Context,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = sheetsService.readIDsToNames(
 //                gearhouse
-//                spreadsheetId = "",
+                spreadsheetId = "1J3e4GLJSXUAFHo7wIyWtxUlY8sVYklmoSCddETne078",
 //                mine
-                spreadsheetId = "1HQ92hTMkvekekHd8akjH_d4SJH2jKM7BdNkiSNJS61M",
+//                spreadsheetId = "1HQ92hTMkvekekHd8akjH_d4SJH2jKM7BdNkiSNJS61M",
 //                google quickstart
 //                spreadsheetId = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
 
 //                mine
-                range = "Sheet1!A2:D"
+//                range = "Sheet1!A2:D"
+//                gearhouse
+                range = "UserID Registration!A2:D"
 //                google quickstart
 //                range = "Class Data!A2:E"
             )

@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.RadioButton
@@ -79,7 +82,7 @@ fun GuestSignIn(
             .fillMaxSize()
             .padding(top = 18.dp)
             .background(LightOrange)
-            .verticalScroll(rememberScrollState())
+//            .verticalScroll(rememberScrollState())
     ) {
         DiscoverySurvey(
             localFocusManager
@@ -218,6 +221,28 @@ fun GuestSignIn(
                     .fillMaxWidth()
             )
         }
+        Button(
+            onClick = {
+                isValidEmail = guestEmail.isValidEmail()
+                isGuestNameValid = guestName.isNotBlank()
+                isValidOption = selectedOption.isNotBlank()
+                if (isGuestNameValid && isValidEmail && isValidOption) {
+                    viewModel.setBarcodeValueForGuestSignIn(
+                        BarcodeValue(
+                            id = "0",
+                            firstName = guestName,
+                            email = guestEmail,
+                            discoveryOption = selectedOption
+                        )
+                    )
+                    onGuestEmailEntered.invoke()
+                }
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = LightYellow),
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = "Submit", color = LightGreen)
+        }
     }
 }
 
@@ -257,8 +282,12 @@ fun DiscoverySurvey(
     val (selectedOption, onOptionSelected) = remember {
         mutableStateOf("")
     }
-    Column {
-        radioOptions.forEach { text ->
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2)
+    ) {
+        items(radioOptions) { text ->
+//            Column {
+//                radioOptions.forEach { text ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -331,6 +360,8 @@ fun DiscoverySurvey(
                     )
                 }
             }
+//                }
+//            }
         }
     }
 }
