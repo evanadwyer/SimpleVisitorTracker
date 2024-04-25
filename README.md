@@ -1,0 +1,1 @@
+This app uses CameraX and Google's MLKit to read a barcode (of a member's tag for example) and mark a timestamp of that scan in a Google Sheet. The idea is to mark when member visit a shop, much like when members scan in to a gym.
